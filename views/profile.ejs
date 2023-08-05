@@ -1,0 +1,16 @@
+<html>
+  <head>
+    <title>Express PostgreSQL EJS Example</title>
+  </head>
+  <body>
+    <h1>Data from PostgreSQL Database</h1>
+    <ul>
+      <% data.forEach(item => { %>
+      <li>
+        <%= item.name %> - <%= item.age %> - <%= item.breed %> - <%= item.weight
+        %> - <%= item.relationship_status %>
+      </li>
+      <% }); %>
+    </ul>
+  </body>
+</html>
