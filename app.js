@@ -2,6 +2,11 @@ const express = require("express");
 const app = express();
 const port = 3000;
 const bodyParser = require("body-parser");
+const { requireAuth } = require("./authMiddleware");
+
+const path = require("path");
+const authRoutes = require("./authRoutes");
+const cookieParser = require("cookie-parser");
 
 const { Pool } = require("pg");
 const pool = new Pool({
@@ -12,8 +17,7 @@ const pool = new Pool({
   port: 5432,
 });
 
-
-app.use(express.static(__dirname +'/Profile_Page'));
+app.use(express.static(__dirname + "/Profile_Page"));
 app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());
@@ -21,6 +25,15 @@ app.use(express.json());
 app.get("/", (req, res) => {
   res.render("welcome");
 });
+
+app.use(express.static("public"));
+
+app.use(cookieParser());
+// main route
+app.get("*", requireAuth);
+app.get("/login", (req, res) => res.render("login"));
+
+app.use(authRoutes);
 
 app.get("/profile/edit", (req, res) => {
   res.render("profile_edit");
@@ -33,10 +46,9 @@ app.get("/profile/feed", (req, res) => {
       return res.status(500).send("Error fetching data from database");
     }
     const data = result.rows;
-    res.render("feed", { data } );
+    res.render("feed", { data });
   });
 });
-
 
 app.get("/profile", (req, res) => {
   pool.query("SELECT * FROM pet_profiles_4 WHERE id = 4", (err, result) => {
@@ -57,7 +69,7 @@ app.put("/edit", (req, res) => {
   if (!name || !breed || !age || !weight || !relationship_status) {
     return res.status(400).json({ error: "All fields are required." });
   }
- 
+
   pool.query(
     "UPDATE pet_profiles_4 SET (name, breed, age, weight, relationship_status) = ($1, $2, $3, $4, $5) WHERE id = 1",
     [name, breed, age, weight, relationship_status],
@@ -77,9 +89,17 @@ app.put("/edit", (req, res) => {
 });
 
 app.post("/", (req, res) => {
-  const { name, breed, age, weight, relationship_status, image_data } = req.body;
+  const { name, breed, age, weight, relationship_status, image_data } =
+    req.body;
   console.log(req.body);
-  if (!name || !breed || !age || !weight || !relationship_status || !image_data) {
+  if (
+    !name ||
+    !breed ||
+    !age ||
+    !weight ||
+    !relationship_status ||
+    !image_data
+  ) {
     return res.status(400).json({ error: "All fields are required." });
   }
   pool.query(
