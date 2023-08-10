@@ -9,7 +9,7 @@ const client = new Client({
   user: "postgres",
   port: 5432,
   password: "102030",
-  database: "petauth", //!!!!!!!!!!Databasename
+  database: "petauth", //!!!!!!!!!!Databasename !!make configdb file
 });
 
 // handle errors
@@ -19,12 +19,12 @@ const handleErrors = (err) => {
 
   // incorrect email
   if (err.message === "incorrect email") {
-    errors.email = "That email is not registered";
+    errors.email = "email not found";
   }
 
   // incorrect password
   if (err.message === "incorrect password") {
-    errors.password = "That password is incorrect";
+    errors.password = "password is incorrect";
   }
 
   // duplicate email error
@@ -47,9 +47,9 @@ const handleErrors = (err) => {
 };
 
 // create json web token
-const maxAge = 3 * 24 * 60 * 60;
+const maxAge = 3 * 24 * 60 * 60; //!!!change the id
 const createToken = (id) => {
-  return jwt.sign({ id }, "net ninja secret", {
+  return jwt.sign({ id }, secret, {
     expiresIn: maxAge,
   });
 };
@@ -67,18 +67,23 @@ module.exports.signup_post = async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    /*  await client.connect();
+    await client.connect();
+    // add validation and check if user exsists
+
+    const hashPassword = bcrypt.hashSync(password, 7);
     const result = await client.query(
       "INSERT INTO authuser(email, password) VALUES($1, $2) RETURNING *",
-      [email, password]
+      [email, hashPassword]
     );
-    const user = await User.create({ email, password }); //!DATABASE
-    const token = createToken(user._id);
-    res.cookie("jwt", token, { httpOnly: true, maxAge: maxAge * 1000 });
-    res.status(201).json({ user: user._id });  */
+
+    // const token = createToken(user._id);
+    // res.cookie("jwt", token, { httpOnly: true, maxAge: maxAge * 1000 });
+    res.status(201).json({ user: email });
   } catch (err) {
     const errors = handleErrors(err);
     res.status(400).json({ errors });
+  } finally {
+    await client.end();
   }
 };
 
@@ -86,12 +91,29 @@ module.exports.login_post = async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    /*  const user = await User.login(email, password); //DATABASE
-    const token = createToken(user._id);
+    await client.connect();
+    const result = await client.query(
+      "SELECT * FROM authuser WHERE email = $1",
+      [email]
+    );
+    //console.log(result);
+    if (result.rows.length != 0) {
+      const auth = bcrypt.compareSync(password, result.rows[0].password);
+      //  console.log("auth " + auth);
+      if (!auth) throw Error("incorrect password");
+    } else throw Error("incorrect email");
+    await client.end();
+
+    const token = createToken(email);
     res.cookie("jwt", token, { httpOnly: true, maxAge: maxAge * 1000 });
-    res.status(200).json({ user: user._id }); */
+    res.status(200).json({ user: email });
   } catch (err) {
     const errors = handleErrors(err);
     res.status(400).json({ errors });
   }
+};
+
+module.exports.logout_get = (req, res) => {
+  res.cookie("jwt", "", { maxAge: 1 });
+  res.redirect("/");
 };
