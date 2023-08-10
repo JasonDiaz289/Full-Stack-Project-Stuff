@@ -12,17 +12,34 @@ const pool = new Pool({
   port: 5432,
 });
 
+
+app.use(express.static(__dirname +'/Profile_Page'));
 app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());
 
-app.get("/views/profile_edit", (req, res) => {
+app.get("/", (req, res) => {
+  res.render("welcome");
+});
+
+app.get("/profile/edit", (req, res) => {
   res.render("profile_edit");
 });
 
+app.get("/profile/feed", (req, res) => {
+  pool.query("SELECT * FROM pet_profiles_4 WHERE id = 4", (err, result) => {
+    if (err) {
+      console.error("Error executing query", err);
+      return res.status(500).send("Error fetching data from database");
+    }
+    const data = result.rows;
+    res.render("feed", { data } );
+  });
+});
 
-app.get("/", (req, res) => {
-  pool.query("SELECT * FROM pet_profiles_3", (err, result) => {
+
+app.get("/profile", (req, res) => {
+  pool.query("SELECT * FROM pet_profiles_4 WHERE id = 4", (err, result) => {
     if (err) {
       console.error("Error executing query", err);
       return res.status(500).send("Error fetching data from the database");
@@ -30,7 +47,7 @@ app.get("/", (req, res) => {
 
     const data = result.rows;
 
-    res.render("profile_edit", { data });
+    res.render("profile", { data });
   });
 });
 
@@ -42,7 +59,7 @@ app.put("/edit", (req, res) => {
   }
  
   pool.query(
-    "UPDATE pet_profiles_3 SET (name, breed, age, weight, relationship_status) = ($1, $2, $3, $4, $5) WHERE id = 1",
+    "UPDATE pet_profiles_4 SET (name, breed, age, weight, relationship_status) = ($1, $2, $3, $4, $5) WHERE id = 1",
     [name, breed, age, weight, relationship_status],
     (err, result) => {
       if (err) {
@@ -60,14 +77,14 @@ app.put("/edit", (req, res) => {
 });
 
 app.post("/", (req, res) => {
-  const { name, breed, age, weight, relationship_status, data } = req.body;
+  const { name, breed, age, weight, relationship_status, image_data } = req.body;
   console.log(req.body);
-  if (!name || !breed || !age || !weight || !relationship_status || !data) {
+  if (!name || !breed || !age || !weight || !relationship_status || !image_data) {
     return res.status(400).json({ error: "All fields are required." });
   }
   pool.query(
-    "INSERT INTO pet_profiles_3 (name, breed, age, weight, relationship_status, data) values ($1, $2, $3, $4, $5, $6)",
-    [name, breed, age, weight, relationship_status, data],
+    "INSERT INTO pet_profiles_4 (name, breed, age, weight, relationship_status, image_data) values ($1, $2, $3, $4, $5, $6)",
+    [name, breed, age, weight, relationship_status, image_data],
     (err, result) => {
       if (err) {
         console.error("Error executing query", err);

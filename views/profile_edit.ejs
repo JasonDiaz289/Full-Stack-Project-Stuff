@@ -1,42 +1,66 @@
 <html>
   <head>
     <title>Add Data</title>
+    <link rel="stylesheet" href="/profile_edit.css">
   </head>
   <body>
-    <h1>Add Data to Database</h1>
-    <form id="updateForm" method="post">
-      <label for="name">Name:</label>
-      <input type="text" id="name" name="name" required /><br />
+    <h1>Profile Edit</h1>
+    <a href="/profile">See Profile</a>
+    <div class="container">
+      <form id="updateForm" method="post">
 
-      <label for="breed">Breed:</label>
-      <input type="text" id="breed" name="breed" required /><br />
-
-      <label for="age">Age:</label>
-      <input type="number" id="age" name="age" required /><br />
-
-      <label for="weight">Weight:</label>
-      <input type="number" id="weight" name="weight" required /><br />
-
-      <label for="relationship_status">Relationship Status:</label>
-      <input
-        type="text"
-        id="relationship_status"
-        name="relationship_status"
-        required
-      /><br />
-
-      <label for="data">Profile Image:</label>
-      <input type="file" accept="image/*" id="data" name="data">
-
-      <button type="submit">Submit</button>
-    </form>
-
-    <!-- <form action="/upload" method="post" enctype="multipart/form-data">
-      <input type="file" id="data" name="image" accept="image/*">
-      <input type="submit" value="Upload">
-    </form> -->
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required /><br />
+  
+        <label for="breed">Breed:</label>
+        <input type="text" id="breed" name="breed" required /><br />
+  
+        <label for="age">Age:</label>
+        <input type="number" id="age" name="age" required /><br />
+  
+        <label for="weight">Weight:</label>
+        <input type="number" id="weight" name="weight" required /><br />
+  
+        <label for="relationship_status">Relationship Status:</label>
+        <input
+          type="text"
+          id="relationship_status"
+          name="relationship_status"
+          required
+        /><br />
+  
+        <label for="image_data">Profile Image:</label>
+        <input type="file" id="image_data" name="image_data" class="profile_image" />
+  
+        <button type="submit">Submit</button>
+        
+      </form>
+    </div>
+    
 
     <script>
+      const fileInput = document.getElementById("image_data");
+      let myImage = "";
+
+      fileInput.addEventListener("change", (e) => {
+        // Get a reference to the file
+        const file = e.target.files[0];
+
+        // Encode the file using the FileReader API
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            // Use a regex to remove data url part
+            const base64String = reader.result
+                .replace('data:', '')
+                .replace(/^.+,/, '');
+
+            console.log(base64String);
+            myImage = base64String;
+            // Logs wL2dvYWwgbW9yZ...
+        };
+        reader.readAsDataURL(file);
+      });
+
       document
         .getElementById("updateForm")
         .addEventListener("submit", function (event) {
@@ -44,6 +68,8 @@
           const form = event.target;
           const formData = new FormData(form);
           let formDataObject = Object.fromEntries(formData.entries());
+          console.log("myImage", myImage); 
+          formDataObject.image_data = myImage;
           let formDataJsonString = JSON.stringify(formDataObject);
           console.log(formDataJsonString);
           console.log(formDataObject);
@@ -69,10 +95,6 @@
             });
         });
 
-      // let loadFile = function (event) {
-      //   let image = document.getElementById("output");
-      //   image.src = URL.createObjectURL(event.target.files[0]);
-      // };
     </script>
   </body>
 </html>

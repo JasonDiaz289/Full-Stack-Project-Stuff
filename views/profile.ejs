@@ -1,16 +1,25 @@
-<html>
-  <head>
-    <title>Express PostgreSQL EJS Example</title>
-  </head>
-  <body>
-    <h1>Data from PostgreSQL Database</h1>
-    <ul>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pet Profile Page</title>
+  <link rel="stylesheet" href="/profilePage.css">
+</head>
+<body>
+  <header>
+    <a href="/profile/edit">Edit Profile</a>
+    <a href="/profile/feed">Feed</a>
+    <div class="container">
       <% data.forEach(item => { %>
-      <li>
-        <%= item.name %> - <%= item.age %> - <%= item.breed %> - <%= item.weight
-        %> - <%= item.relationship_status %>
-      </li>
+      <img src="data:image/png;base64, <%= item.image_data %>" class="profile-image"/>
+      <h1><%= item.name %></h1>
+      <p><label for="breed">Breed: <%= item.breed %></label></p>
+      <p><label for="age">Age: <%= item.age %></label></p>
+      <p><label for="weight">Weight: <%= item.weight%></label></p>
+      <p><label for="relationship_status">Relationship Status: <%= item.relationship_status %></label></p>
       <% }); %>
-    </ul>
-  </body>
+    </div>
+  </header>
+</body>
 </html>
