@@ -5,11 +5,11 @@ const { secret } = require("./config");
 const { Client } = require("pg");
 
 const client = new Client({
-  host: "localhost",
   user: "postgres",
+  host: "localhost",
+  database: "Full Stack Project Database",
+  password: "",
   port: 5432,
-  password: "102030",
-  database: "petauth", //!!!!!!!!!!Databasename !!make configdb file
 });
 
 // handle errors

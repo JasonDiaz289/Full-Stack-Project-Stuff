@@ -3,6 +3,8 @@ const app = express();
 const port = 3000;
 const bodyParser = require("body-parser");
 const { requireAuth } = require("./authMiddleware");
+const bcrypt = require("bcryptjs");
+const authController = require("./authController");
 
 const path = require("path");
 const authRoutes = require("./authRoutes");
@@ -31,7 +33,14 @@ app.use(express.static("public"));
 app.use(cookieParser());
 // main route
 app.get("*", requireAuth);
-app.get("/login", (req, res) => res.render("login"));
+
+
+app.get("/signup", authController.signup_get);
+app.post("/signup", authController.signup_post);
+
+app.get("/login", authController.login_get);
+app.post("/login", authController.login_post);
+app.get("/logout", authController.logout_get);
 
 app.use(authRoutes);
 
