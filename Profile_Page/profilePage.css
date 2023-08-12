@@ -1,60 +1,61 @@
 body {
-    margin: 0;
-    padding: 0;
-    font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
+}
+
+.header {
+  background-color: #f1f1f1;
+  padding: 20px;
+  text-align: center;
+}
+
+.container {
+  max-width: 800px;
+  background-color: #f1f1f1;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.profile-image {
+  width: 150px;
+  height: 150px;
+  background-color: #ddd;
+  border-radius: 50%;
+  margin: 0 auto;
+  /* Adjust the profile image size as needed for different screen sizes */
+}
+
+h1 {
+  margin: 10px 0;
+}
+
+p {
+  margin: 5px 0;
+}
+
+/* Responsive styles for different screen sizes */
+
+/* For smartphones and smaller devices */
+@media (max-width: 767px) {
+  .profile-image {
+    width: 100px;
+    height: 100px;
   }
-  
-  header {
-    background-color: #f1f1f1;
-    padding: 20px;
-    text-align: center;
+}
+
+/* For tablets and smaller devices */
+@media (max-width: 991px) {
+  .profile-image {
+    width: 120px;
+    height: 120px;
   }
-  
-  .container {
-    max-width: 800px;
-    margin: 0 auto;
-  }
-  
+}
+
+/* For desktops and larger devices */
+@media (min-width: 992px) {
   .profile-image {
     width: 150px;
     height: 150px;
-    background-color: #ddd;
-    border-radius: 50%;
-    margin: 0 auto;
-    /* Adjust the profile image size as needed for different screen sizes */
   }
-  
-  h1 {
-    margin: 10px 0;
-  }
-  
-  p {
-    margin: 5px 0;
-  }
-  
-  /* Responsive styles for different screen sizes */
-  
-  /* For smartphones and smaller devices */
-  @media (max-width: 767px) {
-    .profile-image {
-      width: 100px;
-      height: 100px;
-    }
-  }
-  
-  /* For tablets and smaller devices */
-  @media (max-width: 991px) {
-    .profile-image {
-      width: 120px;
-      height: 120px;
-    }
-  }
-  
-  /* For desktops and larger devices */
-  @media (min-width: 992px) {
-    .profile-image {
-      width: 150px;
-      height: 150px;
-    }
-  }
-  
+}

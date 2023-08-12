@@ -21,19 +21,17 @@ const pool = new Pool({
 
 app.use(express.static(__dirname + "/Profile_Page"));
 app.set("view engine", "ejs");
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.json());
+app.use(bodyParser.urlencoded({ extended: true, limit: "50mb" }));
+app.use(express.json({ limit: "50mb" }));
 
-app.get("/", (req, res) => {
-  res.render("welcome");
+app.get("/", requireAuth, (req, res) => {
+  console.log("redirect bro");
+  res.redirect("/profile");
 });
 
 app.use(express.static("public"));
 
 app.use(cookieParser());
-// main route
-app.get("*", requireAuth);
-
 
 app.get("/signup", authController.signup_get);
 app.post("/signup", authController.signup_post);
@@ -59,49 +57,30 @@ app.get("/profile/feed", (req, res) => {
   });
 });
 
-app.get("/profile", (req, res) => {
-  pool.query("SELECT * FROM pet_profiles_4 WHERE id = 4", (err, result) => {
-    if (err) {
-      console.error("Error executing query", err);
-      return res.status(500).send("Error fetching data from the database");
-    }
-
-    const data = result.rows;
-
-    res.render("profile", { data });
-  });
-});
-
-app.put("/edit", (req, res) => {
-  console.log("if you like pina coladas");
-  const { name, breed, age, weight, relationship_status } = req.body;
-  if (!name || !breed || !age || !weight || !relationship_status) {
-    return res.status(400).json({ error: "All fields are required." });
-  }
-
+app.get("/profile/:userID", (req, res) => {
+  const userID = req.params.userID;
   pool.query(
-    "UPDATE pet_profiles_4 SET (name, breed, age, weight, relationship_status) = ($1, $2, $3, $4, $5) WHERE id = 1",
-    [name, breed, age, weight, relationship_status],
+    `SELECT * FROM pet_profiles_4 WHERE id = ${userID}`,
     (err, result) => {
       if (err) {
         console.error("Error executing query", err);
-        return res
-          .status(500)
-          .json({ error: "Error updating data into the database." });
+        return res.status(500).send("Error fetching data from the database");
       }
 
-      res
-        .status(201)
-        .json({ message: "Data successfully updated into the database." });
+      const data = result.rows[0];
+      data.hasImage = data.image_data ? true : false;
+
+      res.render("profile", { data });
     }
   );
 });
 
-app.post("/", (req, res) => {
-  const { name, breed, age, weight, relationship_status, image_data } =
+app.post("/profile/edit", (req, res) => {
+  const { id, name, breed, age, weight, relationship_status, image_data } =
     req.body;
   console.log(req.body);
   if (
+    !id ||
     !name ||
     !breed ||
     !age ||
@@ -112,8 +91,8 @@ app.post("/", (req, res) => {
     return res.status(400).json({ error: "All fields are required." });
   }
   pool.query(
-    "INSERT INTO pet_profiles_4 (name, breed, age, weight, relationship_status, image_data) values ($1, $2, $3, $4, $5, $6)",
-    [name, breed, age, weight, relationship_status, image_data],
+    "UPDATE pet_profiles_4 SET name = $1, breed = $2, age = $3, weight = $4, relationship_status = $5, image_data = $6 WHERE id = $7",
+    [name, breed, age, weight, relationship_status, image_data, id],
     (err, result) => {
       if (err) {
         console.error("Error executing query", err);
