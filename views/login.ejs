@@ -41,9 +41,9 @@
         emailError.textContent = data.errors.email;
         passwordError.textContent = data.errors.password;
       }
-      if (data.user) {
-        location.assign("/");
-        alert("Logged in");
+      console.log("data", data);
+      if (data.userID) {
+        location.assign(`/profile/${data.userID}`);
       }
     } catch (err) {
       console.log(err);
